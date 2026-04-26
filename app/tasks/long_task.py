@@ -1,45 +1,42 @@
-from celery import shared_task
-import time
+from app.celery_app import celery
 import logging
+
+from app.database import SessionLocal
+from app.services.failed_task_service import save_failed_task
 
 logger = logging.getLogger(__name__)
 
 
-@shared_task(
-    bind=True,
-    autoretry_for=(Exception,),  # 🔥 Auto retry for any exception
-    retry_kwargs={"max_retries": 3},  # 🔥 Max 3 retries
-    retry_backoff=True,  # 🔥 Exponential backoff (2,4,8 sec)
-    retry_backoff_max=30,  # max wait cap
-    retry_jitter=True,  # random delay (avoids spikes)
-)
-def long_task(self, name: str):
+@celery.task(bind=True, max_retries=3)
+def long_task(self, data: dict):
+    db = SessionLocal()
+
     try:
-        total_steps = 5
+        logger.info(f"[START] Task ID: {self.request.id}")
 
-        for i in range(total_steps):
-            time.sleep(2)
-
-            # 🔥 Simulate failure (for testing)
-            if i == 2:
-                raise ValueError("Simulated failure!")
-
-            self.update_state(
-                state="PROGRESS",
-                meta={
-                    "current": i + 1,
-                    "total": total_steps,
-                    "percent": int(((i + 1) / total_steps) * 100),
-                },
-            )
+        if data.get("fail"):
+            raise Exception("Simulated failure triggered")
 
         return {
-            "status": "SUCCESS",
-            "message": f"Task completed for {name}",
+            "status": "success",
+            "task_id": self.request.id,
+            "data": data
         }
 
     except Exception as e:
-        logger.error(f"Task failed: {str(e)}")
+        logger.error(f"[ERROR] Task ID: {self.request.id} | Error: {str(e)}")
 
-        # 🔥 This triggers retry
-        raise self.retry(exc=e)
+        if self.request.retries >= (self.max_retries - 1):
+            save_failed_task(
+                db=db,
+                task_id=self.request.id,
+                error=str(e),
+                data=data,
+                retry_count=self.request.retries
+            )
+
+        # 🔥 FAST retry
+        raise self.retry(exc=e, countdown=1, max_retries=3)
+
+    finally:
+        db.close()
