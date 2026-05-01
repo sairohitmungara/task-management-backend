@@ -1,6 +1,6 @@
-# 🚀 Production-Grade Task Management Backend (FastAPI)
+🚀 Production-Grade Task Management Backend (FastAPI)
 
-A scalable backend system built using FastAPI with authentication, async processing, caching, and full test coverage.
+A scalable and production-ready backend system built using FastAPI, featuring authentication, caching, asynchronous processing, and comprehensive test coverage.
 
 ---
 
@@ -13,12 +13,12 @@ A scalable backend system built using FastAPI with authentication, async process
 - 🗑️ Soft Delete & Restore
 - ✅ Mark All Tasks Complete
 - 📊 Task Analytics API
-- ⚡ Redis Caching with Invalidation
-- 🔁 Celery Async Processing with Retry
-- ❌ Failed Task Logging System
-- 🚦 Rate Limiting (SlowAPI)
+- ⚡ Redis Caching with cache invalidation
+- 🔁 Celery Async Processing with retry mechanism
+- ❌ Failed Task logging system
+- 🚦 Rate Limiting using SlowAPI
 - 🛡️ Global Exception Handling
-- 📦 Standard API Response Format
+- 📦 Standard API Response format
 - 📜 Structured Logging
 - ⚙️ Middleware (CORS, GZip, Security Headers)
 
@@ -27,31 +27,33 @@ A scalable backend system built using FastAPI with authentication, async process
 ## 🧠 Architecture
 
 - Clean Architecture (Routers, Services, Models, Schemas)
-- Dependency Injection
-- Optimized DB Queries (SQLAlchemy)
+- Dependency Injection (FastAPI Depends)
+- Optimized DB queries using SQLAlchemy
 - Proper DB session handling (including test isolation)
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Backend:** FastAPI (Python)
-- **Database:** PostgreSQL / SQLite (testing)
-- **ORM:** SQLAlchemy
-- **Auth:** JWT + OAuth2
-- **Caching:** Redis
-- **Async Processing:** Celery + Redis
-- **Testing:** Pytest
-- **DevOps:** Docker, Docker Compose
+- Backend: FastAPI (Python)
+- Database: PostgreSQL (production) / SQLite (testing)
+- ORM: SQLAlchemy
+- Authentication: JWT + OAuth2
+- Caching: Redis
+- Async Processing: Celery + Redis
+- Testing: Pytest
+- DevOps: Docker, Docker Compose
 
 ---
 
 ## 🧪 Testing
 
 - Authentication tests
-- Task APIs tests
+- Task API tests
 - Failure scenarios
 - Analytics validation
+
+Run tests:
 
 ```bash
 pytest -s
