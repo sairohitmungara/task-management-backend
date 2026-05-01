@@ -1,17 +1,18 @@
 from sqlalchemy.orm import Session
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
 from app.models.user import User
-from app.schemas.user_schema import UserCreate
-from app.utils.security import hash_password, verify_password
+from app.utils.hashing import hash_password, verify_password
+from app.utils.security import create_access_token
 
-
-# ✅ REGISTER USER
-def register_user(db: Session, user: UserCreate):
+def register_user(db: Session, user):
     existing_user = db.query(User).filter(User.email == user.email).first()
 
     if existing_user:
-        raise HTTPException(status_code=400, detail="User already exists")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User already exists"
+        )
 
     hashed_password = hash_password(user.password)
 
@@ -27,14 +28,15 @@ def register_user(db: Session, user: UserCreate):
     return new_user
 
 
-# ✅ LOGIN USER
-def authenticate_user(db: Session, email: str, password: str):
+def login_user(db: Session, email: str, password: str):
     user = db.query(User).filter(User.email == email).first()
 
     if not user:
-        return None
+        raise HTTPException(status_code=400, detail="Invalid credentials")
 
     if not verify_password(password, user.password):
-        return None
+        raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    return user
+    token = create_access_token({"user_id": user.id})
+
+    return {"access_token": token, "token_type": "bearer"}

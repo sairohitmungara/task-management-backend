@@ -1,13 +1,7 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Enum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from datetime import datetime
-from app.database import Base
-import enum
-
-
-class TaskStatus(str, enum.Enum):
-    pending = "pending"
-    completed = "completed"
+from app.db.base_class import Base
 
 
 class Task(Base):
@@ -15,15 +9,13 @@ class Task(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
-    description = Column(String)
+    description = Column(String, nullable=True)
+    is_completed = Column(Boolean, default=False)
+    is_deleted = Column(Boolean, default=False, index=True)
 
-    status = Column(Enum(TaskStatus), default=TaskStatus.pending)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    owner_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # ✅ NEW FIELDS
-    is_deleted = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
-
-    owner = relationship("User", back_populates="tasks")
+    user = relationship("User", back_populates="tasks")

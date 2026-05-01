@@ -1,25 +1,45 @@
-# Task Management Backend (FastAPI)
+# 🚀 FastAPI Production Backend
 
-## Overview
-This project is a backend system that allows users to securely manage tasks with authentication and strict ownership control.
+## 📌 Overview
+Production-ready backend built with FastAPI implementing authentication, task management, caching, async processing, and testing.
 
-## Features
-- JWT-based user authentication
-- Task CRUD operations
-- Pagination and filtering
-- Soft delete support
-- User-specific task isolation
-- Logging and error handling
+---
 
-## Tech Stack
+## ⚙️ Tech Stack
+
 - FastAPI
-- SQLAlchemy
-- SQLite
+- PostgreSQL
+- Redis
+- Celery
+- SQLAlchemy (Async)
+- JWT Authentication
+- Docker & Docker Compose
+- Pytest
 
-## Run Locally
+---
 
-pip install -r requirements.txt  
-uvicorn app.main:app --reload  
+## 🚀 Features
 
-## API Docs
-http://127.0.0.1:8000/docs
+- JWT Authentication (Login/Register)
+- Task CRUD (User-specific)
+- Pagination, Filtering, Search
+- Redis Caching (Tasks API)
+- Celery Background Jobs
+- Retry Mechanism + Failure Logging
+- Rate Limiting (SlowAPI)
+- Global Exception Handling
+- Structured Logging
+- Soft Delete + Restore
+- Bulk Task Creation
+- Mark All Tasks Complete
+- Task Analytics API
+- End-to-End Testing
+
+---
+
+## 🛠️ Setup Instructions
+
+### 1. Clone Repo
+```bash
+git clone <your-repo-url>
+cd project

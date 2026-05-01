@@ -1,101 +1,182 @@
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
+from fastapi import HTTPException
+
 from app.models.task import Task
-from app.schemas.task_schema import TaskCreate, TaskUpdate
-from app.utils.response import error_response
-from app.utils.logger import logger
 
 
-def create_task(db: Session, task_data: TaskCreate, user_id: int):
-    logger.info(f"User {user_id} is creating a task")
-
-    new_task = Task(
-        title=task_data.title,
-        description=task_data.description,
-        status=task_data.status,
-        owner_id=user_id
-    )
-
-    db.add(new_task)
-    db.commit()
-    db.refresh(new_task)
-
-    logger.info(f"Task {new_task.id} created by user {user_id}")
-    return new_task
-
-
-def get_tasks(
-    db: Session,
-    user_id: int,
-    skip: int = 0,
-    limit: int = 10,
-    status_filter: str = None,
-    search: str = None
-):
-    logger.info(f"User {user_id} fetching tasks")
-
-    query = db.query(Task).filter(
-        Task.owner_id == user_id,
+# -------------------------
+# GET ALL TASKS
+# -------------------------
+def get_tasks(db: Session, user_id: int):
+    return db.query(Task).filter(
+        Task.user_id == user_id,
         Task.is_deleted == False
-    )
-
-    if status_filter:
-        query = query.filter(Task.status == status_filter)
-
-    if search:
-        query = query.filter(Task.title.ilike(f"%{search}%"))
-
-    return query.offset(skip).limit(limit).all()
+    ).all()
 
 
-def get_task_by_id(db: Session, task_id: int, user_id: int):
-    logger.info(f"User {user_id} requesting task {task_id}")
-
+# -------------------------
+# GET SINGLE TASK
+# -------------------------
+def get_task(db: Session, task_id: int, user_id: int):
     task = db.query(Task).filter(
         Task.id == task_id,
+        Task.user_id == user_id,
         Task.is_deleted == False
     ).first()
 
     if not task:
-        logger.warning(f"Task {task_id} not found")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=error_response("Task not found")
-        )
-
-    if task.owner_id != user_id:
-        logger.warning(f"Unauthorized access by user {user_id} for task {task_id}")
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=error_response("Not authorized")
-        )
+        raise HTTPException(status_code=404, detail="Task not found")
 
     return task
 
 
-def update_task(db: Session, task_id: int, task_data: TaskUpdate, user_id: int):
-    logger.info(f"User {user_id} updating task {task_id}")
+# -------------------------
+# CREATE TASK
+# -------------------------
+def create_task(db: Session, payload: dict, user_id: int):
+    if not payload.get("title"):
+        raise HTTPException(status_code=400, detail="Title is required")
 
-    task = get_task_by_id(db, task_id, user_id)
+    task = Task(
+        title=payload.get("title"),
+        description=payload.get("description"),
+        user_id=user_id
+    )
 
-    for key, value in task_data.dict(exclude_unset=True).items():
-        setattr(task, key, value)
+    db.add(task)
+    db.commit()
+    db.refresh(task)
+
+    return {
+        "id": task.id,
+        "title": task.title,
+        "description": task.description,
+        "is_completed": task.is_completed
+    }
+
+
+# -------------------------
+# BULK CREATE
+# -------------------------
+def bulk_create_tasks(db: Session, payload: list, user_id: int):
+    tasks = []
+
+    for item in payload:
+        if not item.get("title"):
+            continue
+
+        task = Task(
+            title=item.get("title"),
+            description=item.get("description"),
+            user_id=user_id
+        )
+
+        db.add(task)
+        tasks.append(task)
+
+    db.commit()
+
+    return [
+        {
+            "id": task.id,
+            "title": task.title
+        }
+        for task in tasks
+    ]
+
+
+# -------------------------
+# UPDATE TASK
+# -------------------------
+def update_task(db: Session, task_id: int, payload: dict, user_id: int):
+    task = db.query(Task).filter(
+        Task.id == task_id,
+        Task.user_id == user_id,
+        Task.is_deleted == False
+    ).first()
+
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    if "title" in payload:
+        task.title = payload["title"]
+
+    if "description" in payload:
+        task.description = payload["description"]
+
+    if "is_completed" in payload:
+        task.is_completed = payload["is_completed"]
 
     db.commit()
     db.refresh(task)
 
-    logger.info(f"Task {task_id} updated by user {user_id}")
     return task
 
 
+# -------------------------
+# DELETE TASK (SOFT DELETE)
+# -------------------------
 def delete_task(db: Session, task_id: int, user_id: int):
-    logger.info(f"User {user_id} deleting task {task_id}")
+    task = db.query(Task).filter(
+        Task.id == task_id,
+        Task.user_id == user_id,
+        Task.is_deleted == False
+    ).first()
 
-    task = get_task_by_id(db, task_id, user_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
 
     task.is_deleted = True
 
     db.commit()
 
-    logger.info(f"Task {task_id} soft-deleted by user {user_id}")
-    return {"message": "Task deleted successfully"}
+    return True
+
+
+# -------------------------
+# MARK ALL COMPLETE
+# -------------------------
+def mark_all_complete(db: Session, user_id: int):
+    tasks = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.is_deleted == False
+    ).all()
+
+    count = 0
+
+    for task in tasks:
+        if not task.is_completed:
+            task.is_completed = True
+            count += 1
+
+    db.commit()
+
+    return count
+
+
+# -------------------------
+# ANALYTICS
+# -------------------------
+def get_task_analytics(db: Session, user_id: int):
+    total = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.is_deleted == False
+    ).count()
+
+    completed = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.is_completed == True,
+        Task.is_deleted == False
+    ).count()
+
+    pending = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.is_completed == False,
+        Task.is_deleted == False
+    ).count()
+
+    return {
+        "total": total,
+        "completed": completed,
+        "pending": pending
+    }
