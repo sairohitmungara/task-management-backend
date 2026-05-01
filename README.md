@@ -1,45 +1,57 @@
-# 🚀 FastAPI Production Backend
+# 🚀 Production-Grade Task Management Backend (FastAPI)
 
-## 📌 Overview
-Production-ready backend built with FastAPI implementing authentication, task management, caching, async processing, and testing.
-
----
-
-## ⚙️ Tech Stack
-
-- FastAPI
-- PostgreSQL
-- Redis
-- Celery
-- SQLAlchemy (Async)
-- JWT Authentication
-- Docker & Docker Compose
-- Pytest
+A scalable backend system built using FastAPI with authentication, async processing, caching, and full test coverage.
 
 ---
 
-## 🚀 Features
+## 🔥 Features
 
-- JWT Authentication (Login/Register)
-- Task CRUD (User-specific)
-- Pagination, Filtering, Search
-- Redis Caching (Tasks API)
-- Celery Background Jobs
-- Retry Mechanism + Failure Logging
-- Rate Limiting (SlowAPI)
-- Global Exception Handling
-- Structured Logging
-- Soft Delete + Restore
-- Bulk Task Creation
-- Mark All Tasks Complete
-- Task Analytics API
-- End-to-End Testing
+- 🔐 JWT Authentication (Login / Register)
+- 👤 User-based Authorization
+- 📝 Task CRUD APIs
+- 📦 Bulk Task Creation
+- 🗑️ Soft Delete & Restore
+- ✅ Mark All Tasks Complete
+- 📊 Task Analytics API
+- ⚡ Redis Caching with Invalidation
+- 🔁 Celery Async Processing with Retry
+- ❌ Failed Task Logging System
+- 🚦 Rate Limiting (SlowAPI)
+- 🛡️ Global Exception Handling
+- 📦 Standard API Response Format
+- 📜 Structured Logging
+- ⚙️ Middleware (CORS, GZip, Security Headers)
 
 ---
 
-## 🛠️ Setup Instructions
+## 🧠 Architecture
 
-### 1. Clone Repo
+- Clean Architecture (Routers, Services, Models, Schemas)
+- Dependency Injection
+- Optimized DB Queries (SQLAlchemy)
+- Proper DB session handling (including test isolation)
+
+---
+
+## 🛠️ Tech Stack
+
+- **Backend:** FastAPI (Python)
+- **Database:** PostgreSQL / SQLite (testing)
+- **ORM:** SQLAlchemy
+- **Auth:** JWT + OAuth2
+- **Caching:** Redis
+- **Async Processing:** Celery + Redis
+- **Testing:** Pytest
+- **DevOps:** Docker, Docker Compose
+
+---
+
+## 🧪 Testing
+
+- Authentication tests
+- Task APIs tests
+- Failure scenarios
+- Analytics validation
+
 ```bash
-git clone <your-repo-url>
-cd project
+pytest -s
