@@ -1,57 +1,53 @@
-🚀 Production-Grade Task Management Backend (FastAPI)
+# Production-Grade Task Management Backend
 
-A scalable and production-ready backend system built using FastAPI, featuring authentication, caching, asynchronous processing, and comprehensive test coverage.
+A scalable backend system built using FastAPI with authentication, caching, asynchronous task processing, and testing support.
 
----
+## Features
 
-## 🔥 Features
+- JWT Authentication (Login/Register)
+- User-based Authorization
+- Task CRUD APIs
+- Bulk Task Creation
+- Soft Delete and Restore
+- Mark All Tasks Complete
+- Task Analytics API
+- Redis Caching with Cache Invalidation
+- Celery Background Processing with Retry Mechanism
+- Failed Task Logging
+- Rate Limiting using SlowAPI
+- Global Exception Handling
+- Standardized API Responses
+- Structured Logging
+- Middleware Support (CORS, GZip, Security Headers)
 
-- 🔐 JWT Authentication (Login / Register)
-- 👤 User-based Authorization
-- 📝 Task CRUD APIs
-- 📦 Bulk Task Creation
-- 🗑️ Soft Delete & Restore
-- ✅ Mark All Tasks Complete
-- 📊 Task Analytics API
-- ⚡ Redis Caching with cache invalidation
-- 🔁 Celery Async Processing with retry mechanism
-- ❌ Failed Task logging system
-- 🚦 Rate Limiting using SlowAPI
-- 🛡️ Global Exception Handling
-- 📦 Standard API Response format
-- 📜 Structured Logging
-- ⚙️ Middleware (CORS, GZip, Security Headers)
-
----
-
-## 🧠 Architecture
+## Architecture
 
 - Clean Architecture (Routers, Services, Models, Schemas)
-- Dependency Injection (FastAPI Depends)
-- Optimized DB queries using SQLAlchemy
-- Proper DB session handling (including test isolation)
+- Dependency Injection using FastAPI Depends
+- Optimized Queries with SQLAlchemy
+- Proper DB Session Handling
+- Test Isolation Support
 
----
+## Tech Stack
 
-## 🛠️ Tech Stack
+- FastAPI
+- Python
+- PostgreSQL
+- SQLite (Testing)
+- SQLAlchemy
+- Redis
+- Celery
+- JWT Authentication
+- Docker
+- Pytest
 
-- Backend: FastAPI (Python)
-- Database: PostgreSQL (production) / SQLite (testing)
-- ORM: SQLAlchemy
-- Authentication: JWT + OAuth2
-- Caching: Redis
-- Async Processing: Celery + Redis
-- Testing: Pytest
-- DevOps: Docker, Docker Compose
+## Testing
 
----
-
-## 🧪 Testing
-
-- Authentication tests
-- Task API tests
-- Failure scenarios
-- Analytics validation
+Covered:
+- Authentication APIs
+- Task APIs
+- Failure Scenarios
+- Analytics Validation
 
 Run tests:
 
